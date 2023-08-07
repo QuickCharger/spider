@@ -1,0 +1,27 @@
+{
+  "name": "spider",
+  "description": "spider",
+  "version": "0.0.1",
+  "private": false,
+  "author": "QuickCharger<bdgboss12@gmail.com>",
+  "main": "app.js",
+  "scripts": {
+    "start": "node ./app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuickCharger/spider_douban_top250.git"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/QuickCharger/spider_douban_top250/issues"
+  },
+  "homepage": "https://github.com/QuickCharger/easyDB#readme",
+  "dependencies": {
+    "easy": "github:QuickCharger/easy#v0.0.1"
+  },
+  "engines": {
+    "node": ">= 16.0.0"
+  }
+}
