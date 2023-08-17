@@ -13,7 +13,7 @@ setTimeout(async () => {
     "Accept-Encoding": "gzip, deflate, br",
     "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
     "Connection": "keep-alive",
-    "Cookie": "带上cookie 就能获取到和主页一样的值",
+    "Cookie": "r_sort_type=time",    // r_sort_type=time|score
     "Host": "www.smzdm.com",
     "Referer": "https://www.smzdm.com/",
     "Sec-Fetch-Dest": "empty",
@@ -26,8 +26,11 @@ setTimeout(async () => {
     'sec-ch-ua-platform': '"Windows"',
   }
 
-  let doJob = async (att = '') => {
-    let url = `https://www.smzdm.com/homepage/json_more?timesort=${(new Date().getTime() / 1000).toFixed(0)}&p=1&past_num=20`
+  let p = 0
+  let pastNum = 0
+  let doJob = async () => {
+    let url = `https://www.smzdm.com/homepage/json_more?&p=${p}&past_num=${pastNum}`
+    console.log(url)
     let c = null
     let $ = null
     try {
@@ -39,11 +42,30 @@ setTimeout(async () => {
     $ = cheerio.load(c.data)
 
     console.log(c.data.data.map(it => `id ${it.article_id} ${new Date(it.timesort * 1000).toLocaleString()}   ${it.article_title}`).join('\n'))
-    console.log(`${new Date().getTime()}`)
+    // let minTimesort = c.data.data[0].timesort
+    // c.data.data.map(it => {
+    //   if (minTimesort > it.timesort)
+    //     minTimesort = it.timesort
+    //   return it
+    // })
 
-    await wait()
+    ++p
+    pastNum += c.data.data.length
+    await wait(1000)
     doJob()
   }
 
+  // 先获取https://www.smzdm.com/的数据， 然后再通过/homepage/json_more获取更多数据
+  let url = `https://www.smzdm.com/`
+  let c = await axios.get(url, { headers })
+  let $ = cheerio.load(c.data)
+  let lis = $('#feed-main-list').find('li')
+  for (let li of lis) {
+    let title = $(li).find('div').first().find('div').eq(1).find('h5').first().find('a').text().trim()
+    console.log(title)
+  }
+
+  p = 2
+  pastNum = lis.length
   await doJob()
 }, 100)
