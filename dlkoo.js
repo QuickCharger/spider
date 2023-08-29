@@ -3,21 +3,23 @@ let path = require('path')
 let axios = require('axios')
 let cheerio = require('cheerio')
 let puppeteer = require('puppeteer')
+let { sleep } = require('./easy')
 
 let cookie = ''
-
-function wait (ms = 2100) {
-  return new Promise(
-    (r) => setTimeout(() => r(), ms)
-  )
-}
 
 // 随便打开一个网址 目的是获取cookie
 // return true 获取成功 默认修改cookie变量
 async function doGetCookie () {
   let _getCookie = async () => {
 
-    const browser = await puppeteer.launch({ headless: false })
+    const browser = await puppeteer.launch({
+      headless: false,
+      args: [
+        // '--start-maximized',
+        // '--start-fullscreen',
+        // '--window-size=1920,1080',
+      ],
+    })
     const page = await browser.newPage()
     page.setViewport({
       width: 1280,
@@ -30,7 +32,14 @@ async function doGetCookie () {
       'Referer': 'https://www.dlkoo.cc/down/2/2023/619911099.html',
     })
 
-    await page.goto('https://www.dlkoo.cc/down/downfile.asp?did=546832')
+    await page.goto('https://www.dlkoo.cc/down/downfile.asp?did=546832', { waitUntil: 'networkidle2' })
+
+    // 捕获console
+    page.on('console', async msg => {
+      // if (msg.text() === 'SPEECH_DONE') {
+      //   await browser.close()
+      // }
+    })
 
     while (true) {
       // 等待用户输入验证码 页面会自动跳转
@@ -84,7 +93,7 @@ setTimeout(async () => {
   // return false cookie失效 上层获取cookie
   let doDownload = async (href, refer) => {
 
-    await wait()
+    await sleep()
     let url = `https://www.dlkoo.cc${href}`
     console.log(url)
     let did = href.split('did=')[1]
@@ -94,7 +103,7 @@ setTimeout(async () => {
     fs.writeFileSync('dl.log', c.data)
     let movid = $('input[id="movid"]').attr('value')
 
-    await wait()
+    await sleep()
     headers.Referer = `${url}`
     headers.Origin = 'https://www.dlkoo.cc'
     headers.Cookie = cookie
@@ -137,7 +146,7 @@ setTimeout(async () => {
 
   // 每个电影的详细页面
   let doMainPage = async (href) => {
-    await wait()
+    await sleep()
 
     let url = `https://www.dlkoo.cc${href}`
     console.log(url)
