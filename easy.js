@@ -23,9 +23,14 @@ const getCookie = async (website) => {
   return JSON.parse(data.toString())
 }
 
-function sleep (ms = 1000) {
+function sleep (ms = 1000, cb = null) {
   return new Promise(
-    (r, j) => setTimeout(() => r(), ms)
+    (r, j) => setTimeout(async () => {
+      if (cb) {
+        await cb()
+      }
+      r()
+    }, ms)
   )
 }
 

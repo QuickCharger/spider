@@ -6,16 +6,16 @@
   "author": "QuickCharger<bdgboss12@gmail.com>",
   "main": "app.js",
   "scripts": {
-    "start": "node ./dlkoo.js"
+    "start": "node ./douban_top250_puppeteer.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/QuickCharger/spider_douban_top250.git"
+    "url": "git+https://github.com/QuickCharger/spider.git"
   },
   "keywords": [],
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/QuickCharger/spider_douban_top250/issues"
+    "url": "https://github.com/QuickCharger/spider/issues"
   },
   "homepage": "https://github.com/QuickCharger/easyDB#readme",
   "dependencies": {
