@@ -77,49 +77,78 @@ let newPageNeedBind = async (browser, { url, cookie = [], media = true, waitUnti
   await page.setCookie(...cookie)
   await page.goto(url, { waitUntil })
   await page.addScriptTag({ url: 'https://cdn.bootcdn.net/ajax/libs/jquery/3.6.4/jquery.min.js' })
+  // file: \node_modules\puppeteer-core\src\common\USKeyboardLayout.ts
+  await page.keyboard.press("F12", { delay: 1000 })
 
-  // to use
-  // await page.evaluate(()=>{ window.customBlink(...)})
   await page.evaluate(() => {
-    window.customBlink = (id, fadeOutTime = 500, fadeInTime = 500, delay = 0, callback = null) => {
-      console.log(`blink id ${id}`)
-      let ele = $(`#${id}`) // 选择你的元素
-      // ele.animate({
-      //   backgroundColor: 'pink' // 改变底色为红色
-      // }, 500) // 这个动画持续0.5秒
-      //   .animate({
-      //     backgroundColor: '#ffffff' // 改变底色回到白色
-      //   }, 500)
-      // $(window).scrollTop(ele.offset().top - $(window).height() / 3)
+    // 闪烁
+    window.customBlink = (css) => {
+      let ele = $(`#${css}`)
       $(window).scrollTop(ele.offset().top - $(window).height() / 2)
       ele.css("background", "pink")
+    }
 
-      // setInterval(function () {
-      //   $element.animate({
-      //     backgroundColor: '#ff0000' // 改变到的底色
-      //   }, 500) // 半秒钟淡出
-      //     .animate({
-      //       backgroundColor: '#ffffff' // 原始的底色
-      //     }, 500) // 半秒钟淡入
-      // }, 1000) // 每秒钟重复一次
+    window.findAll = (css, format = null, filter = null) => {
+      if (format === null)
+        format = (it) => {
+          let ele = $(it)
+          let rect = ele[0].getBoundingClientRect()
+          return {
+            id: it.id,
+            className: it.className,
+            name: it.name,
+            x_page: ele.offset().left,
+            y_page: ele.offset().top,
+            height: ele.height(),
+            width: ele.width(),
+            x: rect.left,   // x_window
+            y: rect.top  // y_window
+          }
+        }
+      if (filter === null)
+        filter = (it) => { return it }
+      return $(css).toArray().filter(filter).map(format)
+    }
+
+    window.find = (css, format = null, filter = null) => {
+      return window.findAll(css, format, filter)[0]
+    }
+
+    window.scrollCenter = async (css) => {
+      let ele = $(css)
+      await $(window).scrollTop(ele.offset().top - $(window).height() / 2 + ele.height() / 2)
+      return window.find(css)
+    }
+
+    // 查找css并返回居中的位置
+    window.findPosMid = (css) => {
+      let items = $(css).toArray()
+      console.log(items)
+      return items.map(item => {
+        return {
+          y: $(item).offset().top + $(item).height() / 2,
+          x: $(item).offset().left + $(item).width() / 2,
+        }
+      })
     }
   })
-  // await page.exposeFunction('customBlink', (id, fadeOutTime = 500, fadeInTime = 500, delay = 0, callback = null) => {
-  //   $(id).fadeOut(fadeOutTime, function () {
-  //     $(this).fadeIn(fadeInTime, function () {
-  //       setTimeout(() => {
-  //         $(this).fadeOut(fadeOutTime, function () {
-  //           $(this).fadeIn(fadeInTime, function () {
-  //             customBlink(this, fadeOutTime, fadeInTime, delay, callback)
-  //           })
-  //         })
-  //       }, delay)
-  //     })
-  //   })
-  //   if (callback) {
-  //     callback()
-  //   }
-  // })
+
+
+  // demo begin
+  // 通过evaluate注入的函数能访问网页的环境 不能访问nodejs的环境
+  // 导航后 注入消失
+  await page.evaluate(() => {
+    window.formatDayjs_1 = (rules) => {
+      return new Date().format(rules)
+    }
+  })
+  // 通过exposeFunction注入的函数能访问nodejs的环境 不能访问网页的环境
+  // 导航后 注入依旧存在
+  await page.exposeFunction('formatDayjs_2', (rules) => {
+    let dayjs = require('dayjs')
+    return dayjs().format(rules)
+  })
+  // demo end
 
   return page
 }

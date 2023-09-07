@@ -52,7 +52,9 @@ setTimeout(async () => {
     })
 
     for (let li of lis) {
-      let p = await newPageHeadless({ url: li.href, useWindow: true, media: true, waitUntil: 'domcontentloaded' })
+      let p = await newPage({ url: li.href, useWindow: true, media: true, waitUntil: 'domcontentloaded' })
+      // let p = await newPage({ url: 'https://movie.douban.com/subject/1292052/', useWindow: true, media: true, waitUntil: 'domcontentloaded' })
+      // let p = await _browser.newPage()
       // await page.$eval(`#${li.id}`, (li) => {
       //   // console.log(li)
       //   // return
@@ -65,9 +67,24 @@ setTimeout(async () => {
         let rank = $('.ll.rating_num').text()
         return rank
       })
-      console.log(JSON.stringify(li))
+      // console.log(JSON.stringify(li))
+
+      // 展开 class='unfold'
+      {
+        let all = await p.evaluate(() => {
+          return window.findAll('.unfold')
+        })
+        for (let it of all) {
+          let id = `#${it.id}`
+          await p.waitForSelector(id)
+          await p.click(id)
+          await p.waitForTimeout(100)
+        }
+      }
+
       await createPath('douban')
       await p.screenshot({ path: Path.join('douban', `_${li.name}.png`), fullPage: true })
+
       await p.close()
     }
 
