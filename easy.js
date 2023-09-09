@@ -47,21 +47,27 @@ function sleep (ms = 1000, cb = null) {
 
 /**
  * @param {*} waitUntil
- *              load https://developer.mozilla.org/en-US/docs/Web/API/Window/load_event
+ *              load {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/load_event}
  *                全部网页load，包含cs，js，img。 不包含异步加载！！！
- *              domcontentloaded  https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event
+ *              domcontentloaded  {@link https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event}
  *                HTML document全部解析，包含异步js加载。不等待img
  *              networkidle0 consider setting content to be finished when there are no more than 0 network connections for at least `500` ms
  *              networkidle2 consider setting content to be finished when there are no more than 2 network connections for at least `500` ms.
  * @returns 
  */
-let newPageNeedBind = async (browser, { url, cookie = [], media = true, waitUntil = 'networkidle2' }) => {
+let newPageNeedBind = async (browser, { url, cookie = [], media = true, waitUntil = 'networkidle2', emulate = null, networkCondition = null, defaultTimeout = null }) => {
   let page = await browser.newPage()
-  page.setViewport({
+  await page.setViewport({
     width: 1280,
     height: 1024,
     deviceScaleFactor: 1,
   })
+  if (emulate)
+    await page.emulate(emulate)
+  if (networkCondition)
+    await page.emulateNetworkConditions(networkCondition)
+  if (defaultTimeout)
+    await page.setDefaultNavigationTimeout(defaultTimeout)
 
   if (!media) {
     await page.setRequestInterception(true)
@@ -83,7 +89,7 @@ let newPageNeedBind = async (browser, { url, cookie = [], media = true, waitUnti
   await page.evaluate(() => {
     // 闪烁
     window.customBlink = (css) => {
-      let ele = $(`#${css}`)
+      let ele = $(css)
       $(window).scrollTop(ele.offset().top - $(window).height() / 2)
       ele.css("background", "pink")
     }

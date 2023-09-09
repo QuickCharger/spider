@@ -52,16 +52,51 @@ setTimeout(async () => {
     })
 
     for (let li of lis) {
-      let p = await newPage({ url: li.href, useWindow: true, media: true, waitUntil: 'domcontentloaded' })
-      // let p = await newPage({ url: 'https://movie.douban.com/subject/1292052/', useWindow: true, media: true, waitUntil: 'domcontentloaded' })
-      // let p = await _browser.newPage()
-      // await page.$eval(`#${li.id}`, (li) => {
-      //   // console.log(li)
-      //   // return
-      //   window.customBlink(li)
-      // })
+      let emulate = puppeteer.KnownDevices['iPhone 6']
+      let networkCondition = puppeteer.PredefinedNetworkConditions['Fast 3G']
+      let p = await newPageHeadless({
+        url: li.href, useWindow: true, media: true,
+        waitUntil: 'domcontentloaded',
+        emulate: null,
+        networkCondition: null,
+        defaultTimeout: null
+      })
+      // let pt = await _browser.newPage()
+      // pt.waitForResponse
+      // pt.waitForNavigation()
+      // pt.waitForSelector()
+
+      // p.click()  移动到元素 模拟鼠标点击
+      // p.focus()  移动到元素 边框突显
+      // p.hover()  移动到元素 鼠标移动到元素
+      // p.tap()    移动到元素 模拟触屏点击
+      // p.type()   模拟用户键盘输入
+
+      // p.addScriptTag()
+      // p.content()
+      // p.emulate()
+      // p.emulateNetworkConditions()
+      // p.evaluate()
+      // p.exposeFunction()
+      // p.goback()
+      // p.goForward()
+      // p.goto()
+      // p.on()
+      // p.once()
+      // p.pdf()
+      // p.reload()
+      // p.screenshot()
+      // p.select()   选择下拉列表
+      // p.setDefaultNavigationTimeout()
+      // p.setExtraHTTPHeaders()
+      // p.setRequestInterception()
+      // p.setViewport()
+      // p.waitForNavigation()
+      // p.waitForSelector()
+
+      // await page.focus(`#${li.id}`)
       page.evaluate((id) => {
-        window.customBlink(id)
+        window.customBlink(`#${id}`)
       }, li.id)
       let rank = await p.evaluate(() => {
         let rank = $('.ll.rating_num').text()
@@ -76,14 +111,20 @@ setTimeout(async () => {
         })
         for (let it of all) {
           let id = `#${it.id}`
-          await p.waitForSelector(id)
+          // await p.waitForSelector(id)
+          let ppId = await p.evaluate((id) => {
+            return $(id).parent().parent().attr('id')
+          }, id)
           await p.click(id)
-          await p.waitForTimeout(100)
+          // 点击后 会使parent.id 添加class='hidden' 表示新的加载结束
+          await p.waitForSelector(`#${ppId}.hidden`)
         }
       }
 
       await createPath('douban')
+      // 获取的图片有bug 图片内容有重复
       await p.screenshot({ path: Path.join('douban', `_${li.name}.png`), fullPage: true })
+      // await p.pdf({ path: Path.join('douban', `_${li.name}.pdf`) })
 
       await p.close()
     }
@@ -99,7 +140,7 @@ setTimeout(async () => {
 
     await page.close()
 
-    await sleep(500)
+    // await sleep(500)
   }
 
   await _browser.close()
