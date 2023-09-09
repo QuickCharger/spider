@@ -16,8 +16,9 @@ setTimeout(async () => {
       // '--start-fullscreen',
       '--window-size=1280,1024',
     ],
+    slowMo: 100,
   })
-  let _browser_headless = await puppeteer.launch({ headless: 'new' })
+  let _browser_headless = await puppeteer.launch({ headless: 'new', slowMo: 100 })
 
   let newPage = newPageNeedBind.bind(null, _browser)
   let newPageHeadless = newPageNeedBind.bind(null, _browser_headless)
@@ -65,6 +66,7 @@ setTimeout(async () => {
       // pt.waitForResponse
       // pt.waitForNavigation()
       // pt.waitForSelector()
+      // pt.waitForTimeout()
 
       // p.click()  移动到元素 模拟鼠标点击
       // p.focus()  移动到元素 边框突显
