@@ -16,9 +16,9 @@ setTimeout(async () => {
       // '--start-fullscreen',
       '--window-size=1280,1024',
     ],
-    slowMo: 100,
+    // slowMo: 100,
   })
-  let _browser_headless = await puppeteer.launch({ headless: 'new', slowMo: 100 })
+  let _browser_headless = await puppeteer.launch({ headless: 'new', })
 
   let newPage = newPageNeedBind.bind(null, _browser)
   let newPageHeadless = newPageNeedBind.bind(null, _browser_headless)
@@ -46,7 +46,7 @@ setTimeout(async () => {
         let name = $(li).find('.item > .info > .hd > a > .title').eq(0).text()
         let href = $(li).find('.item > .info > .hd > a').attr('href')
         let id = 'id' + Math.random().toString(36).substr(2, 9) // 创建一个随机ID 不能数字开头 所以前面加'id'
-        li.setAttribute('id', id)
+        $(li).attr('id', id)
         ret.push({ rank, name, href, id })
       }
       return ret
@@ -125,8 +125,8 @@ setTimeout(async () => {
 
       await createPath('douban')
       // 获取的图片有bug 图片内容有重复
-      await p.screenshot({ path: Path.join('douban', `_${li.name}.png`), fullPage: true })
-      // await p.pdf({ path: Path.join('douban', `_${li.name}.pdf`) })
+      // await p.screenshot({ path: Path.join('douban', `_${li.name}.png`), fullPage: true })
+      await p.pdf({ path: Path.join('douban', `_${li.name}.pdf`) })
 
       await p.close()
     }
