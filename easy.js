@@ -32,7 +32,9 @@ let load = (pth, filename, defaul, utf8 = true) => {
   return ''
 }
 
-function sleep (ms = 1000, cb = null) {
+
+module.exports.defaultSleepMS = 1000
+function sleep (ms = defaultSleepMS, cb = null) {
   return new Promise(
     (r, j) => setTimeout(async () => {
       if (cb) {

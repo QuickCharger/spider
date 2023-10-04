@@ -113,13 +113,16 @@ setTimeout(async () => {
         })
         for (let it of all) {
           let id = `#${it.id}`
-          // await p.waitForSelector(id)
           let ppId = await p.evaluate((id) => {
             return $(id).parent().parent().attr('id')
           }, id)
-          await p.click(id)
-          // 点击后 会使parent.id 添加class='hidden' 表示新的加载结束
-          await p.waitForSelector(`#${ppId}.hidden`)
+          try {
+            // 点击后 会使parent.id 添加class='hidden' 表示新的加载结束
+            await p.click(id)
+            await p.waitForSelector(`#${ppId}.hidden`)
+          } catch (e) {
+            console.log(`wait #${ppId}.hidden exceeded`)
+          }
         }
       }
 
